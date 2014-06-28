@@ -1,4 +1,5 @@
-# /usr/bin/env ruby
+#!/usr/bin/env ruby
+require 'rubygems'
 require 'linode'
 
 #######################################
@@ -7,7 +8,7 @@ require 'linode'
 ### wrapper.                        ###
 #######################################
 
-myapi_key = ''
+myapi_key = 'gIvTUkSXvprANhvksp7675iQoC17mfmGAOm0nSwIQ9WtbnB46NMcWZK22EqYPUKM'
 
 mytoken = Linode.new(api_key: "#{myapi_key}")
 
