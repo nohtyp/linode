@@ -10,6 +10,7 @@ if ARGV.any?
   end
   command 'build' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
+    on :n,  :name=, 'Set server name (required)',required: true, argument: true
     on :d,  :dcenter=, 'Datacenter to build server (default: Texas=2) ',argument: :optional
     on :distroid=, 'Distro for server (default: CentOS) ',argument: :optional
     on :disksize=, 'Disk size for server (default: entire disk) ',argument: :optional
@@ -24,6 +25,7 @@ if ARGV.any?
     run do |opts, _args|
 
       apikey     = opts[:a]
+      name       = opts[:n]
       datacenter = opts[:d].nil?  ? 2 : opts[:d]
       distroid   = opts[:distroid].nil? ? 127 : opts[:distroid]
       disksize   = opts[:disksize].nil? ? 10240 : opts[:disksize]
@@ -38,6 +40,9 @@ if ARGV.any?
 
       mytoken = Linode.new(api_key: "#{apikey}")
       mynode =  mytoken.linode.create(datacenterid: "#{datacenter}", planid: "#{plan}")
+
+      _updatename = mytoken.linode.update(linodeid: "#{mynode['linodeid']}",
+                                          label: "#{name}")
 
       _newdisk1 = mytoken.linode.disk.createfromdistribution(linodeid: "#{mynode['linodeid']}",
                                                              kernelid: "#{kernel}",
@@ -59,16 +64,17 @@ if ARGV.any?
 
       config = mytoken.linode.config.create(linodeid: "#{mynode['linodeid']}",
                                             kernelid: "#{kernel}",
-                                            label: "mylinode#{mynode['linodeid']}",
+                                            label: "#{name}",
                                             rootdevicenum: 1,
                                             disklist: "#{joineddisk}",
                                             rootdevicero: true)
+
       if opts[:b] == 'true'
-        puts "Booting system #{mynode['linodeid']}"
+        puts "Booting system #{name}"
         mytoken.linode.boot(linodeid: "#{mynode['linodeid']}",
                             configid: "#{config['configid']}") 
       else
-        puts 'Server will not be booted after configuration'
+        puts "Server #{name} will not be booted after configuration"
       end
        
     end
