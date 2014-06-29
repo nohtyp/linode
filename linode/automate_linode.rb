@@ -28,7 +28,6 @@ if ARGV.any?
     on :swaplabel=, 'Swap label (default: automated swap)', argument: :optional
     on :v, :verbose=, 'Verbose mode', argument: :optional
     run do |opts, _args|
-
       apikey     = opts[:a]
       name       = opts[:n]
       datacenter = opts[:d].nil?  ? 2 : opts[:d]
@@ -43,6 +42,7 @@ if ARGV.any?
       swap       = opts[:s].nil?  ? 256 : opts[:s]
       slabel     = opts[:swaplabel].nil? ? 'automated swap' : opts[:swaplabel]
       
+      # Turn on verbosity
       keys = "#{opts.to_hash}"
       if "#{keys}".include?(":verbose")
         enabled = 'true'
@@ -94,7 +94,6 @@ if ARGV.any?
                                             disklist: "#{joineddisk}",
                                             rootdevicero: true)
    
-
       if "#{enabled}" == 'true'
         puts "Configfile #{config}"
       end
