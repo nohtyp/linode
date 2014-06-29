@@ -2,6 +2,7 @@
 require 'slop'
 require 'linode'
 
+
 if ARGV.any?
   opts = Slop.parse(help: true, strict: true) do
     on '-v', 'Print the version' do
@@ -79,21 +80,65 @@ if ARGV.any?
        
     end
   end
-  # command 'destroy' do
-  #  on :n, :sname=, 'Server name to destroy (required)', required: true, argument: true
-  #  run do |opts, _args|
-  #  end
-  # end
-  # command 'poweroff' do
-  #  on :n, :sname=, 'Server name to poweroff (required)', required: true, argument: true
-  #  run do |opts, _args|
-  #  end
-  # end
-  # command 'poweron' do
-  #  on :n, :sname=, 'Server name to poweron (required)', required: true, argument: true
-  #  run do |opts, _args|
-  #  end
-  # end
+  command 'destroy' do
+    on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
+    on :n, :sname=, 'Server name to destroy (required)', required: true, argument: true
+    run do |opts, _args|
+      apikey     = opts[:a]
+      sname      = opts[:n]
+
+      mytoken    = Linode.new(api_key: "#{apikey}")
+      serverlist = mytoken.linode.list
+      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{sname}") }
+      removenil  = serverid.compact[0]
+      
+      serverdisklist = mytoken.linode.disk.list(linodeid: "#{removenil}".to_i)
+      #puts "#{serverdisklist}"
+
+      mydisk = (0..(serverdisklist.count - 1)).each.map { |n| serverdisklist[n]['diskid'] }
+      #puts "#{mydisk}"
+
+      puts "Deleting disks #{mydisk} before removing server."
+      mydisk.each { |d| mytoken.linode.disk.delete(linodeid: "#{removenil}".to_i, diskid: d) }
+
+      puts "Destroying server #{sname}"
+      if mytoken.linode.list(linodeid: "#{removenil}".to_i)[0]['status'] == 0
+        mytoken.linode.delete(linodeid: "#{removenil}".to_i, skipchecks: true)
+      end
+    end
+   end
+  command 'shutdown' do
+    on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
+    on :n, :sname=, 'Server name to poweroff (required)', required: true, argument: true
+    run do |opts, _args|
+      apikey     = opts[:a]
+      sname      = opts[:n]
+
+      mytoken    = Linode.new(api_key: "#{apikey}")
+      serverlist = mytoken.linode.list
+      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{sname}") }
+      removenil  = serverid.compact
+
+      puts "Shutting down server #{sname}"
+      removenil.each { |x| mytoken.linode.shutdown(linodeid: x) if mytoken.linode.list(linodeid: x)[0]['status'] != 0 }
+    end
+  end
+  command 'start' do
+    on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
+    on :n,  :sname=, 'Server name to poweron (required)', required: true, argument: true
+    run do |opts, _args|
+      apikey     = opts[:a]
+      sname      = opts[:n]
+
+      mytoken    = Linode.new(api_key: "#{apikey}")
+      serverlist = mytoken.linode.list
+      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{sname}") }
+      removenil  = serverid.compact
+
+      puts "Starting server #{sname}"
+      removenil.each { |x| mytoken.linode.boot(linodeid: x) if mytoken.linode.list(linodeid: x)[0]['status'] != 0 }
+    end
+   end
   end
 else
   Slop.parse do
