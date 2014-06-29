@@ -8,7 +8,7 @@ require 'linode'
 ### wrapper.                        ###
 #######################################
 
-myapi_key = 'gIvTUkSXvprANhvksp7675iQoC17mfmGAOm0nSwIQ9WtbnB46NMcWZK22EqYPUKM'
+myapi_key = ''
 
 mytoken = Linode.new(api_key: "#{myapi_key}")
 
