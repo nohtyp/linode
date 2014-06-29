@@ -9,6 +9,10 @@ if ARGV.any?
     puts 'Version 1.0'
     exit
   end
+  command 'search' do
+    run do |opts, _args|
+    end
+  end
   command 'build' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
     on :n,  :name=, 'Set server name (required)',required: true, argument: true
@@ -123,7 +127,7 @@ if ARGV.any?
       removenil.each { |x| mytoken.linode.shutdown(linodeid: x) if mytoken.linode.list(linodeid: x)[0]['status'] != 0 }
     end
   end
-  command 'start' do
+  command 'poweron' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
     on :n,  :sname=, 'Server name to poweron (required)', required: true, argument: true
     run do |opts, _args|
