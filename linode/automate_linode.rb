@@ -8,7 +8,7 @@ if ARGV.any?
       puts 'Version 1.0'
       exit
     end
-  command 'search' do
+  command 'search (not fully implemented)' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
     on :n,  :name=, 'Set server name (required)', argument: :optional
     on :d,  :dcenter=, 'Datacenter to build server (default: Texas=2) ', argument: :optional
@@ -21,9 +21,8 @@ if ARGV.any?
     
     run do |opts, _args|
       mytoken = Linode.new(api_key: "#{apikey}")
-     
-    
-    #servers =
+      server = opts[:n]
+      mytoken.linode.list("#{servers}")
     end
   end
   command 'build' do
