@@ -16,3 +16,8 @@ Available commands:
   poweron    
 
 See `<command> --help` for more information on a specific command.
+
+
+I wrote this to just learn how to use the linode ruby gem.  There is an api for
+linode using fog.
+https://github.com/fog/fog/tree/master/lib/fog/linode

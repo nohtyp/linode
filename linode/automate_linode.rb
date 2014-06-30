@@ -9,7 +9,21 @@ if ARGV.any?
       exit
     end
   command 'search' do
+    on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
+    on :n,  :name=, 'Set server name (required)', argument: :optional
+    on :d,  :dcenter=, 'Datacenter to build server (default: Texas=2) ', argument: :optional
+    on      :distroid=, 'Distro for server (default: CentOS) ', argument: :optional
+    on      :disksize=, 'Disk size for server (default: entire disk) ', argument: :optional
+    on :p,  :plan=, 'Plan of server (default: planid=1)', argument: :optional
+    on :n,  :network=, 'Use internal network (default: false)', argument: :optional
+    on :k,  :kernel=, 'Kernel to use on linode server(default: 138)', argument: :optional
+    on :v,  :verbose=, 'Verbose mode', argument: :optional
+    
     run do |opts, _args|
+      mytoken = Linode.new(api_key: "#{apikey}")
+     
+    
+    #servers =
     end
   end
   command 'build' do
