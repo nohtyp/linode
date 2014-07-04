@@ -163,9 +163,7 @@ if ARGV.any?
       mydisk.each { |d| mytoken.linode.disk.delete(linodeid: "#{removenil}".to_i, diskid: d) }
 
       puts "Destroying server #{name}"
-      if mytoken.linode.list(linodeid: "#{removenil}".to_i)[0]['status'] == 0
-        mytoken.linode.delete(linodeid: "#{removenil}".to_i, skipchecks: true)
-      end
+      mytoken.linode.delete(linodeid: "#{removenil}".to_i, skipchecks: true)
     end
   end
   command 'shutdown' do
