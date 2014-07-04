@@ -10,7 +10,7 @@ if ARGV.any?
     end
   command 'search (not fully implemented)' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
-    on :n,  :name=, 'Set server name (required)', argument: :optional
+    on      :name=, 'Set server name (required)', argument: :optional
     on :d,  :dcenter=, 'Datacenter to build server (default: Texas=2) ', argument: :optional
     on      :distroid=, 'Distro for server (default: CentOS) ', argument: :optional
     on      :disksize=, 'Disk size for server (default: entire disk) ', argument: :optional
@@ -21,13 +21,13 @@ if ARGV.any?
     
     run do |opts, _args|
       mytoken = Linode.new(api_key: "#{apikey}")
-      server = opts[:n]
+      server = opts[:name]
       mytoken.linode.list("#{servers}")
     end
   end
   command 'build' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
-    on :n,  :name=, 'Set server name (required)', required: true, argument: true
+    on :name=, 'Set server name (required)', required: true, argument: true
     on :d,  :dcenter=, 'Datacenter to build server (default: Texas=2) ', argument: :optional
     on :distroid=, 'Distro for server (default: CentOS) ', argument: :optional
     on :disksize=, 'Disk size for server (default: entire disk) ', argument: :optional
@@ -42,7 +42,7 @@ if ARGV.any?
     on :v, :verbose=, 'Verbose mode', argument: :optional
     run do |opts, _args|
       apikey     = opts[:a]
-      name       = opts[:n]
+      name       = opts[:name]
       datacenter = opts[:d].nil?  ? 2 : opts[:d]
       distroid   = opts[:distroid].nil? ? 127 : opts[:distroid]
       disksize   = opts[:disksize].nil? ? 10240 : opts[:disksize]
@@ -53,14 +53,14 @@ if ARGV.any?
       dlabel     = opts[:l].nil?  ? 'automated build' : opts[:l]
       rpass      = opts[:r].nil?  ? 'L1n0d3S3rver!' : opts[:r]
       swap       = opts[:s].nil?  ? 256 : opts[:s]
+      verbose    = opts[:v].nil?  ? false : opts[:v]
       slabel     = opts[:swaplabel].nil? ? 'automated swap' : opts[:swaplabel]
       
       # Turn on verbosity
-      keys = "#{opts.to_hash}"
-      if "#{keys}".include?(":verbose")
-        enabled = 'true'
-      else
+      if "#{verbose}" == 'false'
         enabled = 'false'
+      else
+        enabled = 'true'
       end
 
       mytoken = Linode.new(api_key: "#{apikey}")
@@ -122,17 +122,17 @@ if ARGV.any?
   end
   command 'destroy' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
-    on :n, :sname=, 'Server name to destroy (required)', required: true, argument: true
+    on :name=, 'Server name to destroy (required)', required: true, argument: true
     on :v, :verbose=, 'Verbose mode', argument: :optional
     run do |opts, _args|
       apikey     = opts[:a]
-      sname      = opts[:n]
+      name       = opts[:name]
+      verbose    = opts[:v].nil?  ? false : opts[:v]
 
-      keys = "#{opts.to_hash}"
-      if "#{keys}".include?(":verbose")
-        enabled = 'true'
-      else
+      if "#{verbose}" == 'false'
         enabled = 'false'
+      else
+        enabled = 'true'
       end
 
       mytoken    = Linode.new(api_key: "#{apikey}")
@@ -142,7 +142,7 @@ if ARGV.any?
         puts "List of servers #{serverlist}"
       end
 
-      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{sname}") }
+      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{name}") }
       removenil  = serverid.compact[0]
 
       if "#{enabled}" == 'true'
@@ -162,7 +162,7 @@ if ARGV.any?
       puts "Deleting disks #{mydisk} before removing server."
       mydisk.each { |d| mytoken.linode.disk.delete(linodeid: "#{removenil}".to_i, diskid: d) }
 
-      puts "Destroying server #{sname}"
+      puts "Destroying server #{name}"
       if mytoken.linode.list(linodeid: "#{removenil}".to_i)[0]['status'] == 0
         mytoken.linode.delete(linodeid: "#{removenil}".to_i, skipchecks: true)
       end
@@ -170,17 +170,17 @@ if ARGV.any?
   end
   command 'shutdown' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
-    on :n, :sname=, 'Server name to poweroff (required)', required: true, argument: true
+    on :name=, 'Server name to poweroff (required)', required: true, argument: true
     on :v, :verbose=, 'Verbose mode', argument: :optional
     run do |opts, _args|
       apikey     = opts[:a]
-      sname      = opts[:n]
+      name       = opts[:name]
+      verbose    = opts[:v].nil?  ? false : opts[:v]
 
-      keys = "#{opts.to_hash}"
-      if "#{keys}".include?(":verbose")
-        enabled = 'true'
-      else
+      if "#{verbose}" == 'false'
         enabled = 'false'
+      else
+        enabled = 'true'
       end
 
       mytoken    = Linode.new(api_key: "#{apikey}")
@@ -189,30 +189,30 @@ if ARGV.any?
       if "#{enabled}" == 'true'
         puts "List of servers #{serverlist}"
       end
-      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{sname}") }
+      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{name}") }
       removenil  = serverid.compact
 
       if "#{enabled}" == 'true'
         puts "Server linodeid to check #{removenil}"
       end
 
-      puts "Shutting down server #{sname}"
+      puts "Shutting down server #{name}"
       removenil.each { |x| mytoken.linode.shutdown(linodeid: x) if mytoken.linode.list(linodeid: x)[0]['status'] != 0 }
     end
   end
   command 'poweron' do
     on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
-    on :n,  :sname=, 'Server name to poweron (required)', required: true, argument: true
+    on :name=, 'Server name to poweron (required)', required: true, argument: true
     on :v, :verbose=, 'Verbose mode', argument: :optional
     run do |opts, _args|
       apikey     = opts[:a]
-      sname      = opts[:n]
+      name       = opts[:name]
+      verbose    = opts[:v].nil?  ? false : opts[:v]
 
-      keys = "#{opts.to_hash}"
-      if "#{keys}".include?(":verbose")
-        enabled = 'true'
-      else
+      if "#{verbose}" == 'false'
         enabled = 'false'
+      else
+        enabled = 'true'
       end
 
       mytoken    = Linode.new(api_key: "#{apikey}")
@@ -221,14 +221,14 @@ if ARGV.any?
       if "#{enabled}" == 'true'
         puts "List of servers #{serverlist}"
       end
-      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{sname}") }
+      serverid   = (0..(serverlist.count - 1)).each.map { |n| serverlist[n]['linodeid'] if serverlist[n]['label'].include?("#{name}") }
       removenil  = serverid.compact
 
       if "#{enabled}" == 'true'
         puts "Server linodeid to check #{removenil}"
       end
 
-      puts "Starting server #{sname}"
+      puts "Starting server #{name}"
       removenil.each { |x| mytoken.linode.boot(linodeid: x) if mytoken.linode.list(linodeid: x)[0]['status'] != 0 }
     end
   end
