@@ -9,19 +9,18 @@ if ARGV.any?
       exit
     end
   command 'search (not fully implemented)' do
-    on :a,  :apikey=, 'Linode apikey (required)', required: true, argument: true
-    on      :name=, 'Set server name (required)', argument: :optional
-    on :d,  :dcenter=, 'Datacenter to build server (default: Texas=2) ', argument: :optional
-    on      :distroid=, 'Distro for server (default: CentOS) ', argument: :optional
-    on      :disksize=, 'Disk size for server (default: entire disk) ', argument: :optional
-    on :p,  :plan=, 'Plan of server (default: planid=1)', argument: :optional
-    on :n,  :network=, 'Use internal network (default: false)', argument: :optional
-    on :k,  :kernel=, 'Kernel to use on linode server(default: 138)', argument: :optional
-    on :v,  :verbose=, 'Verbose mode', argument: :optional
-    
+    on :a, :apikey=, 'Linode apikey (required)', required: true, argument: true
+    on :name=, 'Set server name (required)', argument: :optional
+    on :d, :dcenter=, 'Datacenter to build server (default: Texas=2) ', argument: :optional
+    on :distroid=, 'Distro for server (default: CentOS) ', argument: :optional
+    on :disksize=, 'Disk size for server (default: entire disk) ', argument: :optional
+    on :p, :plan=, 'Plan of server (default: planid=1)', argument: :optional
+    on :n, :network=, 'internal network (default: false)', argument: :optional
+    on :k, :kernel=, 'Kernel for server(default: 138)', argument: :optional
+    on :v, :verbose=, 'Verbose mode', argument: :optional
     run do |opts, _args|
       mytoken = Linode.new(api_key: "#{apikey}")
-      server = opts[:name]
+      # server = opts[:name]
       mytoken.linode.list("#{servers}")
     end
   end
@@ -45,7 +44,7 @@ if ARGV.any?
       name       = opts[:name]
       datacenter = opts[:d].nil?  ? 2 : opts[:d]
       distroid   = opts[:distroid].nil? ? 127 : opts[:distroid]
-      disksize   = opts[:disksize].nil? ? 10240 : opts[:disksize]
+      disksize   = opts[:disksize].nil? ? 102_40 : opts[:disksize]
       plan       = opts[:p].nil?  ? 1 : opts[:p]
       network    = opts[:n].nil?  ? 'false' : opts[:n]
       kernel     = opts[:k].nil?  ? 138 : opts[:k]
@@ -55,7 +54,6 @@ if ARGV.any?
       swap       = opts[:s].nil?  ? 256 : opts[:s]
       verbose    = opts[:v].nil?  ? false : opts[:v]
       slabel     = opts[:swaplabel].nil? ? 'automated swap' : opts[:swaplabel]
-      
       # Turn on verbosity
       if "#{verbose}" == 'false'
         enabled = 'false'
